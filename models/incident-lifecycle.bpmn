@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_Energy_Grid" targetNamespace="https://github.com/zdmooc/mayabank-energy-grid-functional-architecture">
+  <bpmn:process id="Process_Incident" name="Qualification et gestion incident réseau simulé" isExecutable="false">
+    <bpmn:documentation>REFERENCE_SYNTHETIC. Aucun workflow Enedis interne, contrôle SCADA ou action opérationnelle réelle.</bpmn:documentation>
+    <bpmn:startEvent id="Start_Observation" name="Observation reçue"><bpmn:outgoing>Flow_Observation_Validate</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_Validate" name="Vérifier qualité et provenance"><bpmn:incoming>Flow_Observation_Validate</bpmn:incoming><bpmn:outgoing>Flow_Validate_Quality</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gate_Quality" name="Valide ?"><bpmn:incoming>Flow_Validate_Quality</bpmn:incoming><bpmn:outgoing>Flow_Quality_Quarantine</bpmn:outgoing><bpmn:outgoing>Flow_Quality_Qualify</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_Quarantine" name="Quarantaine événement"><bpmn:incoming>Flow_Quality_Quarantine</bpmn:incoming><bpmn:outgoing>Flow_Quarantine_Invalid</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Invalid" name="Signal rejeté"><bpmn:incoming>Flow_Quarantine_Invalid</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_Qualify" name="Qualifier incident"><bpmn:incoming>Flow_Quality_Qualify</bpmn:incoming><bpmn:outgoing>Flow_Qualify_Impact</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_Impact" name="Évaluer impact"><bpmn:incoming>Flow_Qualify_Impact</bpmn:incoming><bpmn:outgoing>Flow_Impact_Intervention</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gate_Intervention" name="Intervention ?"><bpmn:incoming>Flow_Impact_Intervention</bpmn:incoming><bpmn:outgoing>Flow_Intervention_Monitor</bpmn:outgoing><bpmn:outgoing>Flow_Intervention_Human</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_Monitor" name="Suivi et observation"><bpmn:incoming>Flow_Intervention_Monitor</bpmn:incoming><bpmn:outgoing>Flow_Monitor_Monitor</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Monitor" name="Suivi clos"><bpmn:incoming>Flow_Monitor_Monitor</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_Human" name="Décision humaine tracée"><bpmn:incoming>Flow_Intervention_Human</bpmn:incoming><bpmn:outgoing>Flow_Human_Approved</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gate_Approved" name="Autorisé ?"><bpmn:incoming>Flow_Human_Approved</bpmn:incoming><bpmn:outgoing>Flow_Approved_Escalate</bpmn:outgoing><bpmn:outgoing>Flow_Approved_Workorder</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_Escalate" name="Escalade hiérarchique"><bpmn:incoming>Flow_Approved_Escalate</bpmn:incoming><bpmn:outgoing>Flow_Escalate_Escalate</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Escalate" name="Escalade"><bpmn:incoming>Flow_Escalate_Escalate</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_Workorder" name="Créer ordre intervention"><bpmn:incoming>Flow_Approved_Workorder</bpmn:incoming><bpmn:outgoing>Flow_Workorder_FieldReport</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_FieldReport" name="Recevoir rapport terrain"><bpmn:incoming>Flow_Workorder_FieldReport</bpmn:incoming><bpmn:outgoing>Flow_FieldReport_Confirm</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_Confirm" name="Vérifier restauration"><bpmn:incoming>Flow_FieldReport_Confirm</bpmn:incoming><bpmn:outgoing>Flow_Confirm_Close</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_Close" name="Clôturer et tracer"><bpmn:incoming>Flow_Confirm_Close</bpmn:incoming><bpmn:outgoing>Flow_Close_Closed</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Closed" name="Incident clos"><bpmn:incoming>Flow_Close_Closed</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Observation_Validate" sourceRef="Start_Observation" targetRef="Task_Validate"/>
+    <bpmn:sequenceFlow id="Flow_Validate_Quality" sourceRef="Task_Validate" targetRef="Gate_Quality"/>
+    <bpmn:sequenceFlow id="Flow_Quality_Quarantine" sourceRef="Gate_Quality" targetRef="Task_Quarantine" name="Non"/>
+    <bpmn:sequenceFlow id="Flow_Quarantine_Invalid" sourceRef="Task_Quarantine" targetRef="End_Invalid"/>
+    <bpmn:sequenceFlow id="Flow_Quality_Qualify" sourceRef="Gate_Quality" targetRef="Task_Qualify" name="Oui"/>
+    <bpmn:sequenceFlow id="Flow_Qualify_Impact" sourceRef="Task_Qualify" targetRef="Task_Impact"/>
+    <bpmn:sequenceFlow id="Flow_Impact_Intervention" sourceRef="Task_Impact" targetRef="Gate_Intervention"/>
+    <bpmn:sequenceFlow id="Flow_Intervention_Monitor" sourceRef="Gate_Intervention" targetRef="Task_Monitor" name="Non"/>
+    <bpmn:sequenceFlow id="Flow_Monitor_Monitor" sourceRef="Task_Monitor" targetRef="End_Monitor"/>
+    <bpmn:sequenceFlow id="Flow_Intervention_Human" sourceRef="Gate_Intervention" targetRef="Task_Human" name="Oui"/>
+    <bpmn:sequenceFlow id="Flow_Human_Approved" sourceRef="Task_Human" targetRef="Gate_Approved"/>
+    <bpmn:sequenceFlow id="Flow_Approved_Escalate" sourceRef="Gate_Approved" targetRef="Task_Escalate" name="Non"/>
+    <bpmn:sequenceFlow id="Flow_Escalate_Escalate" sourceRef="Task_Escalate" targetRef="End_Escalate"/>
+    <bpmn:sequenceFlow id="Flow_Approved_Workorder" sourceRef="Gate_Approved" targetRef="Task_Workorder" name="Oui"/>
+    <bpmn:sequenceFlow id="Flow_Workorder_FieldReport" sourceRef="Task_Workorder" targetRef="Task_FieldReport"/>
+    <bpmn:sequenceFlow id="Flow_FieldReport_Confirm" sourceRef="Task_FieldReport" targetRef="Task_Confirm"/>
+    <bpmn:sequenceFlow id="Flow_Confirm_Close" sourceRef="Task_Confirm" targetRef="Task_Close"/>
+    <bpmn:sequenceFlow id="Flow_Close_Closed" sourceRef="Task_Close" targetRef="End_Closed"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_Incident">
+    <bpmndi:BPMNPlane id="Plane_Incident" bpmnElement="Process_Incident">
+      <bpmndi:BPMNShape id="Shape_Start_Observation" bpmnElement="Start_Observation"><dc:Bounds x="100" y="100" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Validate" bpmnElement="Task_Validate"><dc:Bounds x="275" y="85" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Gate_Quality" bpmnElement="Gate_Quality"><dc:Bounds x="505" y="95" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Quarantine" bpmnElement="Task_Quarantine"><dc:Bounds x="565" y="230" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_End_Invalid" bpmnElement="End_Invalid"><dc:Bounds x="795" y="243" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Qualify" bpmnElement="Task_Qualify"><dc:Bounds x="690" y="85" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Impact" bpmnElement="Task_Impact"><dc:Bounds x="890" y="85" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Gate_Intervention" bpmnElement="Gate_Intervention"><dc:Bounds x="1100" y="95" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Monitor" bpmnElement="Task_Monitor"><dc:Bounds x="1135" y="230" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_End_Monitor" bpmnElement="End_Monitor"><dc:Bounds x="1365" y="243" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Human" bpmnElement="Task_Human"><dc:Bounds x="1290" y="85" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Gate_Approved" bpmnElement="Gate_Approved"><dc:Bounds x="1510" y="95" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Escalate" bpmnElement="Task_Escalate"><dc:Bounds x="1550" y="230" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_End_Escalate" bpmnElement="End_Escalate"><dc:Bounds x="1775" y="243" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Workorder" bpmnElement="Task_Workorder"><dc:Bounds x="1690" y="85" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_FieldReport" bpmnElement="Task_FieldReport"><dc:Bounds x="1900" y="85" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Confirm" bpmnElement="Task_Confirm"><dc:Bounds x="2110" y="85" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Close" bpmnElement="Task_Close"><dc:Bounds x="2320" y="85" width="170" height="70"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_End_Closed" bpmnElement="End_Closed"><dc:Bounds x="2540" y="104" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_Flow_Observation_Validate" bpmnElement="Flow_Observation_Validate"><di:waypoint x="118" y="118"/><di:waypoint x="360" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Validate_Quality" bpmnElement="Flow_Validate_Quality"><di:waypoint x="360" y="120"/><di:waypoint x="530" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Quality_Quarantine" bpmnElement="Flow_Quality_Quarantine"><di:waypoint x="530" y="120"/><di:waypoint x="650" y="265"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Quarantine_Invalid" bpmnElement="Flow_Quarantine_Invalid"><di:waypoint x="650" y="265"/><di:waypoint x="813" y="261"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Quality_Qualify" bpmnElement="Flow_Quality_Qualify"><di:waypoint x="530" y="120"/><di:waypoint x="775" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Qualify_Impact" bpmnElement="Flow_Qualify_Impact"><di:waypoint x="775" y="120"/><di:waypoint x="975" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Impact_Intervention" bpmnElement="Flow_Impact_Intervention"><di:waypoint x="975" y="120"/><di:waypoint x="1125" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Intervention_Monitor" bpmnElement="Flow_Intervention_Monitor"><di:waypoint x="1125" y="120"/><di:waypoint x="1220" y="265"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Monitor_Monitor" bpmnElement="Flow_Monitor_Monitor"><di:waypoint x="1220" y="265"/><di:waypoint x="1383" y="261"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Intervention_Human" bpmnElement="Flow_Intervention_Human"><di:waypoint x="1125" y="120"/><di:waypoint x="1375" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Human_Approved" bpmnElement="Flow_Human_Approved"><di:waypoint x="1375" y="120"/><di:waypoint x="1535" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Approved_Escalate" bpmnElement="Flow_Approved_Escalate"><di:waypoint x="1535" y="120"/><di:waypoint x="1635" y="265"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Escalate_Escalate" bpmnElement="Flow_Escalate_Escalate"><di:waypoint x="1635" y="265"/><di:waypoint x="1793" y="261"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Approved_Workorder" bpmnElement="Flow_Approved_Workorder"><di:waypoint x="1535" y="120"/><di:waypoint x="1775" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Workorder_FieldReport" bpmnElement="Flow_Workorder_FieldReport"><di:waypoint x="1775" y="120"/><di:waypoint x="1985" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_FieldReport_Confirm" bpmnElement="Flow_FieldReport_Confirm"><di:waypoint x="1985" y="120"/><di:waypoint x="2195" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Confirm_Close" bpmnElement="Flow_Confirm_Close"><di:waypoint x="2195" y="120"/><di:waypoint x="2405" y="120"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_Close_Closed" bpmnElement="Flow_Close_Closed"><di:waypoint x="2405" y="120"/><di:waypoint x="2558" y="122"/></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
