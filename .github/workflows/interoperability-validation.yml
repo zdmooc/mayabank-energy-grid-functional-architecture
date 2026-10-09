@@ -1,0 +1,67 @@
+name: Energy Grid Interoperability Validation
+
+on:
+  push:
+    paths:
+      - 'models/**'
+      - 'tools/**'
+      - '.github/workflows/interoperability-validation.yml'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  official-xsd-mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install lxml==6.0.2
+      - name: Validate XML using pinned copies of OMG and Open Group 3.1 XSDs
+        run: python tools/validate_external_schemas.py
+
+  bpmn-moddle-roundtrip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-audit --no-fund bpmn-moddle@10.2.0
+      - run: mkdir -p artifacts && node tools/check_bpmn_metamodel.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bpmn-moddle-roundtrip
+          path: artifacts/incident-roundtrip.bpmn
+
+  mermaid-svg-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-audit --no-fund @mermaid-js/mermaid-cli@11.17.0
+      - name: Render diagrams as SVG (must fail if renderer errors)
+        run: |
+          mkdir -p artifacts
+          printf '%s\n' '{"args":["--no-sandbox", "--disable-setuid-sandbox"]}' > /tmp/mermaid-puppeteer.json
+          npx mmdc -i models/incident-sequence.mmd -o artifacts/incident-sequence.svg -p /tmp/mermaid-puppeteer.json
+          npx mmdc -i models/incident-domain-class.mmd -o artifacts/incident-domain-class.svg -p /tmp/mermaid-puppeteer.json
+          awk '/^```mermaid/{flag=1;next} /^```/{if(flag){flag=0;exit}} flag{print}' models/ARCHIMATE_README.md > /tmp/archimate-view.mmd
+          test -s /tmp/archimate-view.mmd
+          npx mmdc -i /tmp/archimate-view.mmd -o artifacts/archimate-conceptual-view.svg -p /tmp/mermaid-puppeteer.json
+          test -s artifacts/incident-sequence.svg
+          test -s artifacts/incident-domain-class.svg
+          test -s artifacts/archimate-conceptual-view.svg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mermaid-rendered-svg
+          path: artifacts/*.svg
