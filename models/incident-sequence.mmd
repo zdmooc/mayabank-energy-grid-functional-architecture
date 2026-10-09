@@ -21,7 +21,7 @@ sequenceDiagram
             WRK-->>DEC: WorkOrderId
             INC->>BUS: Publish IncidentQualified.v1 (outbox)
         else Rejection
-            DEC-->>INC: Escalation recorded; no OT command
+            DEC-->>INC: Escalation recorded, no OT command
         end
         INC-->>OBS: incidentId
     end
