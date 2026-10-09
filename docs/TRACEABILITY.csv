@@ -1,0 +1,7 @@
+Requirement,Capability,Process,Application,Data,AcceptanceCriteria,EvidenceStatus
+FR-01,Observe network,Validate event,observation-svc,Observation,Reject missing source_event_id,DOCUMENTED_ONLY
+FR-02,Qualify incident,Correlate observations,incident-svc,Incident,Duplicate does not create second incident,DOCUMENTED_ONLY
+FR-03,Assess impact,Evaluate snapshot,impact-svc,ImpactAssessment,Every assessment references topology_version,DOCUMENTED_ONLY
+FR-04,Approve intervention,Human review,decision-svc,HumanDecision,No work order without recorded authorization,DOCUMENTED_ONLY
+FR-05,Coordinate fieldwork,Create work order,fieldwork-svc,WorkOrder,Idempotent retry produces one work order,DOCUMENTED_ONLY
+FR-06,Audit operations,Close incident,reporting-readmodel,AuditEntry,Every state change correlated and timestamped,DOCUMENTED_ONLY
