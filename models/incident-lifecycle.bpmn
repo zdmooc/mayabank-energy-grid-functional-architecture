@@ -6,6 +6,35 @@
                   id="Definitions_Energy_Grid" targetNamespace="https://github.com/zdmooc/mayabank-energy-grid-functional-architecture">
   <bpmn:process id="Process_Incident" name="Qualification et gestion incident réseau simulé" isExecutable="false">
     <bpmn:documentation>REFERENCE_SYNTHETIC. Aucun workflow Enedis interne, contrôle SCADA ou action opérationnelle réelle.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_Incident">
+      <bpmn:lane id="Lane_Supervision" name="Supervision / collecte">
+        <bpmn:flowNodeRef>Start_Observation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gate_Quality</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Quarantine</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Invalid</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Analysis" name="Analyse métier">
+        <bpmn:flowNodeRef>Task_Qualify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Impact</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gate_Intervention</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Monitor</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Monitor</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Decision" name="Décision humaine">
+        <bpmn:flowNodeRef>Task_Human</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gate_Approved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Escalate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Escalate</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Field" name="Coordination terrain">
+        <bpmn:flowNodeRef>Task_Workorder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FieldReport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Confirm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Close</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Closed</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
     <bpmn:startEvent id="Start_Observation" name="Observation reçue"><bpmn:outgoing>Flow_Observation_Validate</bpmn:outgoing></bpmn:startEvent>
     <bpmn:task id="Task_Validate" name="Vérifier qualité et provenance"><bpmn:incoming>Flow_Observation_Validate</bpmn:incoming><bpmn:outgoing>Flow_Validate_Quality</bpmn:outgoing></bpmn:task>
     <bpmn:exclusiveGateway id="Gate_Quality" name="Valide ?"><bpmn:incoming>Flow_Validate_Quality</bpmn:incoming><bpmn:outgoing>Flow_Quality_Quarantine</bpmn:outgoing><bpmn:outgoing>Flow_Quality_Qualify</bpmn:outgoing></bpmn:exclusiveGateway>
