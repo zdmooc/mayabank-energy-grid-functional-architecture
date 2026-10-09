@@ -1,0 +1,24 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+import { BpmnModdle } from 'bpmn-moddle';
+
+const source = readFileSync('models/incident-lifecycle.bpmn', 'utf8');
+const moddle = new BpmnModdle();
+const { rootElement, warnings } = await moddle.fromXML(source, 'bpmn:Definitions');
+for (const w of warnings) console.error('BPMN_PARSE_WARNING=', w.message);
+assert.equal(warnings.length, 0, 'BPMN metamodel parser warnings');
+assert.equal(rootElement.$type, 'bpmn:Definitions');
+const process = rootElement.rootElements.find(element => element.$type === 'bpmn:Process');
+assert.ok(process, 'BPMN process must be present');
+assert.equal(process.isExecutable, false);
+assert.equal(process.laneSets.length, 1);
+assert.equal(process.laneSets[0].lanes.length, 4);
+assert.equal(process.flowElements.filter(e => e.$type === 'bpmn:ExclusiveGateway').length, 3);
+assert.equal(process.flowElements.filter(e => e.$type === 'bpmn:SequenceFlow').length, 18);
+assert.equal(process.flowElements.filter(e => e.$type === 'bpmn:StartEvent').length, 1);
+assert.equal(process.flowElements.filter(e => e.$type === 'bpmn:EndEvent').length, 4);
+const serialized = await moddle.toXML(rootElement, { format: true });
+const again = await moddle.fromXML(serialized.xml, 'bpmn:Definitions');
+assert.equal(again.warnings.length, 0, 'BPMN round-trip parser warnings');
+writeFileSync('artifacts/incident-roundtrip.bpmn', serialized.xml);
+console.log('BPMN_MODDLE_IMPORT=PASS ROUNDTRIP=PASS LANES=4 GATEWAYS=3 FLOWS=18');
