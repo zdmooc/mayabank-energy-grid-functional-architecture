@@ -1,0 +1,50 @@
+classDiagram
+  direction LR
+  class Observation {
+    +UUID observation_id
+    +String source_event_id
+    +String quality_code
+    +Datetime observed_at
+    +Datetime received_at
+  }
+  class Incident {
+    +String incident_id
+    +String severity
+    +String status
+    +int version
+    +Datetime detected_at
+  }
+  class NetworkAsset {
+    +String asset_id
+    +String asset_type
+    +String topology_version
+  }
+  class ImpactAssessment {
+    +String assessment_id
+    +String topology_snapshot_version
+    +String confidence
+  }
+  class HumanDecision {
+    +String decision_id
+    +String authorized_role
+    +Datetime approved_at
+    +String rationale
+  }
+  class WorkOrder {
+    +String work_order_id
+    +String status
+    +Datetime assigned_at
+  }
+  class AuditEntry {
+    +String audit_id
+    +String correlation_id
+    +String actor
+    +Datetime occurred_at
+  }
+
+  Incident "1" --> "0..*" Observation : correlates
+  Incident "0..*" --> "0..*" NetworkAsset : impacts
+  Incident "1" --> "0..*" ImpactAssessment : evaluated
+  Incident "1" --> "0..*" HumanDecision : audited
+  Incident "1" --> "0..*" WorkOrder : coordinates
+  Incident "1" --> "0..*" AuditEntry : traced
