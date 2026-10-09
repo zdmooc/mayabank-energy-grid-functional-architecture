@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    participant OBS as ObservationAdapter
+    participant INC as IncidentService
+    participant IMP as ImpactService
+    participant HUM as AuthorizedOperator
+    participant DEC as DecisionService
+    participant WRK as FieldWorkService
+    participant BUS as EventBus
+    OBS->>INC: Submit observation (eventId, correlationId)
+    INC->>INC: Validate provenance and deduplicate
+    alt Duplicate event
+        INC-->>OBS: Existing incidentId
+    else Valid observation
+        INC->>IMP: Assess impact(snapshotVersion)
+        IMP-->>INC: Assessment(confidence, version)
+        INC-->>HUM: Present assessment for review
+        HUM->>DEC: Record approval or rejection
+        alt Approval
+            DEC->>WRK: Request work order(idempotencyKey)
+            WRK-->>DEC: WorkOrderId
+            INC->>BUS: Publish IncidentQualified.v1 (outbox)
+        else Rejection
+            DEC-->>INC: Escalation recorded; no OT command
+        end
+        INC-->>OBS: incidentId
+    end
