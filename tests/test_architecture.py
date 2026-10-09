@@ -39,6 +39,11 @@ class ModelGates(unittest.TestCase):
         edges = {n.get("bpmnElement") for n in doc.iter(BPMNDI + "BPMNEdge")}
         self.assertEqual(shapes, set(nodes))
         self.assertEqual(edges, {f.get("id") for f in flows})
+        lanes = process.findall(BPMN + "laneSet/" + BPMN + "lane")
+        self.assertEqual(len(lanes), 4, "four semantic swimlanes expected")
+        covered = [ref.text for lane in lanes for ref in lane.findall(BPMN + "flowNodeRef")]
+        self.assertEqual(len(covered), len(set(covered)), "node belongs to multiple lanes")
+        self.assertEqual(set(covered), set(nodes), "swimlane coverage incomplete")
         self.assertEqual(len([n for n in nodes.values() if n.tag == BPMN + "startEvent"]), 1)
         self.assertGreaterEqual(len([n for n in nodes.values() if n.tag == BPMN + "endEvent"]), 3)
         start = next(name for name,n in nodes.items() if n.tag == BPMN + "startEvent")
@@ -77,6 +82,10 @@ class ModelGates(unittest.TestCase):
             self.assertTrue(row["AcceptanceCriteria"])
         self.assertIn("sequenceDiagram", (ROOT / "models/incident-sequence.mmd").read_text(encoding="utf-8"))
         self.assertIn("flowchart", (ROOT / "models/ARCHIMATE_README.md").read_text(encoding="utf-8"))
+        class_uml = (ROOT / "models/incident-domain-class.mmd").read_text(encoding="utf-8")
+        self.assertIn("classDiagram", class_uml)
+        for concept in ("Observation", "Incident", "NetworkAsset", "ImpactAssessment", "HumanDecision", "WorkOrder", "AuditEntry"):
+            self.assertIn("class " + concept, class_uml)
 
 class ContractCases(unittest.TestCase):
     def setUp(self):
