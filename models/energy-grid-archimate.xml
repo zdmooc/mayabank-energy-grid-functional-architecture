@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="model-energy-grid-functional" version="3.1">
+  <name xml:lang="fr">MayaBank Energy Grid Functional Architecture — Synthetic</name>
+  <documentation xml:lang="fr">Modèle de référence fictif sur l'incident HTA/BT. Aucun accès, modèle interne ni validation Enedis. Format ArchiMate Model Exchange (éléments/relations) sans vue graphique native.</documentation>
+  <elements>
+    <element identifier="actor-operator" xsi:type="BusinessActor"><name xml:lang="fr">Opérateur de conduite habilité</name></element>
+    <element identifier="actor-field" xsi:type="BusinessActor"><name xml:lang="fr">Équipe terrain</name></element>
+    <element identifier="cap-qualify" xsi:type="Capability"><name xml:lang="fr">Qualification des incidents</name></element>
+    <element identifier="cap-impact" xsi:type="Capability"><name xml:lang="fr">Évaluation d'impact</name></element>
+    <element identifier="cap-decision" xsi:type="Capability"><name xml:lang="fr">Décision d'exploitation</name></element>
+    <element identifier="cap-field" xsi:type="Capability"><name xml:lang="fr">Coordination des interventions</name></element>
+    <element identifier="proc-incident" xsi:type="BusinessProcess"><name xml:lang="fr">Gestion d'incident réseau simulé</name></element>
+    <element identifier="svc-incident" xsi:type="ApplicationService"><name xml:lang="fr">Service de qualification incident</name></element>
+    <element identifier="svc-impact" xsi:type="ApplicationService"><name xml:lang="fr">Service d'évaluation impact</name></element>
+    <element identifier="svc-decision" xsi:type="ApplicationService"><name xml:lang="fr">Service de décision humaine</name></element>
+    <element identifier="svc-field" xsi:type="ApplicationService"><name xml:lang="fr">Service de coordination terrain</name></element>
+    <element identifier="app-observe" xsi:type="ApplicationComponent"><name xml:lang="fr">Observation Adapter (lecture seule)</name></element>
+    <element identifier="app-incident" xsi:type="ApplicationComponent"><name xml:lang="fr">Incident Management</name></element>
+    <element identifier="app-impact" xsi:type="ApplicationComponent"><name xml:lang="fr">Impact Assessment</name></element>
+    <element identifier="app-decision" xsi:type="ApplicationComponent"><name xml:lang="fr">Human Decision</name></element>
+    <element identifier="app-field" xsi:type="ApplicationComponent"><name xml:lang="fr">Field Work</name></element>
+    <element identifier="data-observation" xsi:type="DataObject"><name xml:lang="fr">Observation</name></element>
+    <element identifier="data-incident" xsi:type="DataObject"><name xml:lang="fr">Incident</name></element>
+    <element identifier="data-assessment" xsi:type="DataObject"><name xml:lang="fr">ImpactAssessment</name></element>
+    <element identifier="data-decision" xsi:type="DataObject"><name xml:lang="fr">HumanDecision</name></element>
+    <element identifier="data-order" xsi:type="DataObject"><name xml:lang="fr">WorkOrder</name></element>
+  </elements>
+  <relationships>
+    <relationship identifier="rel-001" xsi:type="Assignment" source="actor-operator" target="proc-incident"><name xml:lang="fr">L'opérateur participe au processus</name></relationship>
+    <relationship identifier="rel-002" xsi:type="Association" source="cap-qualify" target="proc-incident"><name xml:lang="fr">Capacité métier</name></relationship>
+    <relationship identifier="rel-003" xsi:type="Association" source="cap-impact" target="proc-incident"><name xml:lang="fr">Capacité métier</name></relationship>
+    <relationship identifier="rel-004" xsi:type="Association" source="cap-decision" target="proc-incident"><name xml:lang="fr">Capacité métier</name></relationship>
+    <relationship identifier="rel-005" xsi:type="Association" source="cap-field" target="proc-incident"><name xml:lang="fr">Capacité métier</name></relationship>
+    <relationship identifier="rel-006" xsi:type="Realization" source="app-incident" target="svc-incident"><name xml:lang="fr">Exposition service</name></relationship>
+    <relationship identifier="rel-007" xsi:type="Realization" source="app-impact" target="svc-impact"><name xml:lang="fr">Exposition service</name></relationship>
+    <relationship identifier="rel-008" xsi:type="Realization" source="app-decision" target="svc-decision"><name xml:lang="fr">Exposition service</name></relationship>
+    <relationship identifier="rel-009" xsi:type="Realization" source="app-field" target="svc-field"><name xml:lang="fr">Exposition service</name></relationship>
+    <relationship identifier="rel-010" xsi:type="Serving" source="svc-incident" target="proc-incident"><name xml:lang="fr">Sert le processus</name></relationship>
+    <relationship identifier="rel-011" xsi:type="Serving" source="svc-impact" target="proc-incident"><name xml:lang="fr">Sert le processus</name></relationship>
+    <relationship identifier="rel-012" xsi:type="Serving" source="svc-decision" target="proc-incident"><name xml:lang="fr">Sert le processus</name></relationship>
+    <relationship identifier="rel-013" xsi:type="Serving" source="svc-field" target="proc-incident"><name xml:lang="fr">Sert le processus</name></relationship>
+    <relationship identifier="rel-014" xsi:type="Access" source="app-observe" target="data-observation"><name xml:lang="fr">Observation</name></relationship>
+    <relationship identifier="rel-015" xsi:type="Access" source="app-incident" target="data-incident"><name xml:lang="fr">Source maître</name></relationship>
+    <relationship identifier="rel-016" xsi:type="Access" source="app-impact" target="data-assessment"><name xml:lang="fr">Source maître</name></relationship>
+    <relationship identifier="rel-017" xsi:type="Access" source="app-decision" target="data-decision"><name xml:lang="fr">Source maître</name></relationship>
+    <relationship identifier="rel-018" xsi:type="Access" source="app-field" target="data-order"><name xml:lang="fr">Source maître</name></relationship>
+    <relationship identifier="rel-019" xsi:type="Flow" source="app-observe" target="app-incident"><name xml:lang="fr">ObservationReceived</name></relationship>
+    <relationship identifier="rel-020" xsi:type="Flow" source="app-incident" target="app-impact"><name xml:lang="fr">AssessmentRequested</name></relationship>
+    <relationship identifier="rel-021" xsi:type="Flow" source="app-incident" target="app-decision"><name xml:lang="fr">HumanReviewRequested</name></relationship>
+    <relationship identifier="rel-022" xsi:type="Flow" source="app-decision" target="app-field"><name xml:lang="fr">WorkOrderRequested</name></relationship>
+  </relationships>
+</model>
