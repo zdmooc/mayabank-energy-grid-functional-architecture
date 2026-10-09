@@ -14,7 +14,7 @@
 | [incident-domain-class.mmd](../models/incident-domain-class.mmd) | Mermaid class UML-inspired | 7 entités conceptuelles / cardinalités illustratives | présence statique des entités |
 | [TRACEABILITY.csv](TRACEABILITY.csv) | CSV | FR-01…FR-06 → capacités/processus/applications/données/critères | unicité, couverture noms application/data et critères non vides |
 
-**Important :** la conformité au schéma XSD officiel (OMG BPMN20.xsd / The Open Group ArchiMate 3.1), le rendu graphique Mermaid et l'import dans un outil BPMN ou ArchiMate **ne sont pas démontrés** par ces contrôles Python. Les lanes sont définies sémantiquement en XML, sans BPMN DI de couloirs certifiée.
+**Important :** la première suite Python ne démontrait pas XSD ni rendu. La [seconde chaîne E4+](E4_INTEROPERABILITY_EVIDENCE_2026-10-09.md) a depuis **réussi la validation XSD de copies versionnées des standards BPMN/ArchiMate, l'import/réexport BPMN par bpmn-moddle et le rendu SVG Mermaid**. Les imports visuels Camunda Modeler/Archi et la conformité de la disposition des lanes ne sont toujours pas prouvés.
 
 ## E4-B — Tests d'invariants et CI
 
@@ -32,15 +32,15 @@ La [soutenance E4](E4_ARCHITECTURE_BOARD_REHEARSAL.md) formalise sept objections
 
 | Gate | Responsable externe / contexte | Statut |
 |---|---|---|
-| XSD OMG + import BPMN Camunda Modeler / bpmn.io | outil compatible, preuve d'import + version | PENDING |
-| XSD The Open Group + import Archi (ou outil compatible) | outil compatible, preuve d'import + version | PENDING |
-| Rendu Mermaid et revue visuelle de diagrammes | moteur Mermaid/éditeur | PENDING |
+| XSD OMG (copie épinglée) + parser bpmn-moddle | CI E4+ | **PASS** (XSD + import/réexport programmatique) |\n| Import visuel BPMN Camunda Modeler / bpmn.io | logiciel métier / captures d'import | PENDING |
+| XSD The Open Group 3.1 (copie épinglée) | CI E4+ | **PASS** (XSD) |\n| Import visuel Archi | outil Archi / preuve d'import + version | PENDING |
+| Rendu Mermaid en SVG | GitHub CI @mermaid-js/mermaid-cli | **PASS** (3 SVG comme artefacts) |\n| Revue humaine de la lisibilité et sémantique des diagrammes | architecte compétent | PENDING |
 | Revue métier énergétique, sécurité/sûreté et interactions OT | expert métier habilité, équipe OT/architecture | PENDING |
 | Validation Architecture Board et paramétrage SLA/SLO/RTO/RPO | client réel / mandat | NOT CLAIMED |
 | Essais CI/CD de véritables API/services et Kafka sur runtime | projet ultérieur explicitement autorisé | OUT_OF_SCOPE |
 
 ## Conclusion et labels
 
-Le périmètre **portfolio automatisé synthétique** est clôturable dès que le dernier commit `main` a sa CI verte. Les contrôles CI sont des **tests de structure de modèles et de contrats in-memory**, pas une certification BPMN/ArchiMate ou un POC industriel. Toute affirmation de validation métier externe exige sa propre preuve nominative/datée.
+Le périmètre **portfolio automatisé synthétique** est clos pour les preuves CI [E4+ run 37982045352](https://github.com/zdmooc/mayabank-energy-grid-functional-architecture/actions/runs/37982045352), trois jobs verts après correction du diagramme de séquence. Les contrôles CI sont des **tests de structure de modèles et de contrats in-memory**, pas une certification BPMN/ArchiMate ou un POC industriel. Toute affirmation de validation métier externe exige sa propre preuve nominative/datée.
 
 Références normatives : [OMG BPMN 2.0.2](https://www.omg.org/spec/BPMN/2.0.2) ; [The Open Group — ArchiMate Exchange File Format](https://www.opengroup.org/open-group-archimate-model-exchange-file-format).
