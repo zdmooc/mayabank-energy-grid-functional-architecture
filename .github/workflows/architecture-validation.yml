@@ -1,0 +1,31 @@
+name: Energy Grid Architecture Validation
+
+on:
+  push:
+    paths:
+      - 'models/**'
+      - 'docs/**'
+      - 'reference/**'
+      - 'tests/**'
+      - '.github/workflows/architecture-validation.yml'
+      - 'README.md'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-static-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run XML topology and in-memory contract checks
+        run: python -m unittest discover -s tests -v
+      - name: Check Python modules compile
+        run: python -m compileall -q reference tests
